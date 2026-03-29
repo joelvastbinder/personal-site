@@ -1,0 +1,97 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/* ─── IDE Theme Tokens ─────────────────────────────────────────── */
+
+:root {
+  /* Dark theme (default) */
+  --ide-bg:          #1e1e1e;
+  --ide-panel:       #252526;
+  --ide-border:      #3c3c3c;
+  --ide-text:        #cccccc;
+  --ide-text-muted:  #6a6a6a;
+  --ide-accent:      #569cd6;
+  --ide-tab-active:  #1e1e1e;
+  --ide-tab-border:  #569cd6;
+  --ide-input-bg:    #1e1e1e;
+  --ide-send-bg:     #3c3c3c;
+  --ide-send-hover:  #505050;
+
+  /* shadcn passthrough */
+  --background: #1e1e1e;
+  --foreground: #cccccc;
+  --border: #3c3c3c;
+  --input: #3c3c3c;
+  --ring: #569cd6;
+  --radius: 0.25rem;
+}
+
+[data-theme="solarized"] {
+  --ide-bg:          #002b36;
+  --ide-panel:       #073642;
+  --ide-border:      #2d5060;
+  --ide-text:        #839496;
+  --ide-text-muted:  #3d6470;
+  --ide-accent:      #268bd2;
+  --ide-tab-active:  #002b36;
+  --ide-tab-border:  #268bd2;
+  --ide-input-bg:    #002b36;
+  --ide-send-bg:     #2d5060;
+  --ide-send-hover:  #3d6470;
+
+  --background: #002b36;
+  --foreground: #839496;
+  --border: #2d5060;
+  --input: #2d5060;
+  --ring: #268bd2;
+}
+
+@theme inline {
+  --font-mono: var(--font-jetbrains-mono), 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+  body {
+    background-color: var(--ide-bg);
+    color: var(--ide-text);
+    font-family: var(--font-mono), monospace;
+  }
+}
+
+/* ─── IDE-specific utilities ───────────────────────────────────── */
+.ide-border {
+  border: 2px solid var(--ide-border);
+}
+
+.ide-border-top {
+  border-top: 2px solid var(--ide-border);
+}
+
+.ide-border-bottom {
+  border-bottom: 2px solid var(--ide-border);
+}
+
+.ide-border-right {
+  border-right: 2px solid var(--ide-border);
+}
+
+.ide-border-left {
+  border-left: 2px solid var(--ide-border);
+}
+
+/* Drag handle custom cursor */
+.drag-handle {
+  cursor: col-resize;
+}
