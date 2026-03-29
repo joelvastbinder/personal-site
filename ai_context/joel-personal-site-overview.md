@@ -19,7 +19,7 @@
 ## Layout
 
 ### Left panel — Resume preview
-Renders the active resume view. Starts as a clean, readable default layout derived from the resume markdown. Updates live when the agent generates new HTML/CSS. The underlying content is always Joel's real experience — only the presentation changes.
+Renders the active resume view. Starts as **unstyled HTML** — real markup with browser default styling only (no custom CSS on the resume until a restyle). Updates live when the agent generates new HTML/CSS. The underlying content is always Joel's real experience — only the presentation changes.
 
 ### Right panel — Chat interface
 Persistent sidebar with message history and a text input. The agent responds in chat before applying any visual changes to the left panel.
@@ -72,7 +72,7 @@ Humorous and creative themes are welcome. Generated HTML must stay PG-rated — 
 | Decision | Resolution |
 |---|---|
 | **Resume content** | Read-only and immutable from the visitor's perspective. The AI agent can only change how content is displayed, never what it says. |
-| **Resume source** | Fetched from static external storage (e.g. S3, GitHub raw, or similar) at page load. Joel can update the markdown without redeploying the site. Content is treated as fixed for the duration of any visitor session. |
+| **Resume source** | Fetched from static external storage (e.g. S3, GitHub raw, or similar) at page load. Joel can update the source file (often markdown) without redeploying the site; it is shown as unstyled HTML in the panel until restyled. Content is treated as fixed for the duration of any visitor session. |
 | **Session persistence** | The current UI version is saved to localStorage and restored on page refresh. Chat history is ephemeral (session only). |
 | **Version history limit** | 10 past versions stored per session. When the cap is reached, the oldest version is pruned (FIFO). |
 | **Content guardrails** | Best-effort PG filter on generated HTML themes. Humorous and unconventional styles are encouraged; explicit or inappropriate content is blocked with a friendly fallback. |

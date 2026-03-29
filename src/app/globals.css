@@ -16,6 +16,9 @@
   --ide-input-bg:    #1e1e1e;
   --ide-send-bg:     #3c3c3c;
   --ide-send-hover:  #505050;
+  --ide-user-bubble: #569cd6;
+  --ide-user-bubble-text: #ffffff;
+  --ide-agent-bg:    #2a2d2e;
 
   /* shadcn passthrough */
   --background: #1e1e1e;
@@ -38,6 +41,9 @@
   --ide-input-bg:    #002b36;
   --ide-send-bg:     #2d5060;
   --ide-send-hover:  #3d6470;
+  --ide-user-bubble: #268bd2;
+  --ide-user-bubble-text: #ffffff;
+  --ide-agent-bg:    #0a3642;
 
   --background: #002b36;
   --foreground: #839496;

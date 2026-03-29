@@ -1,50 +1,37 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useRef, useEffect, useState, type FormEvent } from "react"
 import { CornerDownLeft } from "lucide-react"
+import { useChat } from "@ai-sdk/react"
+import type { UIMessage } from "ai"
 
 type Mode = "auto" | "qa" | "restyle"
 
-interface Message {
-  role: "user" | "agent"
-  content: string
+function messageText(message: UIMessage): string {
+  return message.parts
+    .filter((part): part is { type: "text"; text: string } => part.type === "text")
+    .map((part) => part.text)
+    .join("")
 }
 
-const MOCK_MESSAGES: Message[] = [
-  {
-    role: "user",
-    content: "What cloud platforms has Joel worked with?",
-  },
-  {
-    role: "agent",
-    content:
-      "Joel has hands-on experience across all three major cloud providers.\n\nOn AWS he has worked with EC2, Lambda, S3, RDS, and EKS. At Vercel he owned the deploy infrastructure spanning AWS, GCP (Cloud Run, BigQuery), and Azure (AKS). His Stripe work also involved cloud-native data pipelines running on managed Kafka and Redshift clusters.",
-  },
-  {
-    role: "user",
-    content: "Can you restyle the resume to look like a dark-mode code editor?",
-  },
-  {
-    role: "agent",
-    content:
-      "Sure — switching to Restyle mode.\n\nI'll apply a dark-mode editor theme to the resume preview: dark background, syntax-highlighted section headers, monospace type, and a subtle accent border on each entry. Give me a moment to render that.",
-  },
-]
-
 export function ChatPanel() {
-  const [messages] = useState<Message[]>(MOCK_MESSAGES)
+  const { messages, sendMessage, status, error } = useChat()
   const [input, setInput] = useState("")
   const [mode, setMode] = useState<Mode>("auto")
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  const busy = status === "submitted" || status === "streaming"
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  const handleSend = () => {
-    if (!input.trim()) return
+  const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const text = input.trim()
+    if (!text || busy) return
+    void sendMessage({ text })
     setInput("")
-    // Static shell — no-op for now
   }
 
   const modeLabels: Record<Mode, string> = {
@@ -77,37 +64,64 @@ export function ChatPanel() {
 
       {/* Message history */}
       <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-4">
-        {messages.map((msg, i) => (
-          <div key={i}>
+        {messages.map((msg) => (
+          <div key={msg.id} className={msg.role === "user" ? "flex justify-end" : ""}>
             {msg.role === "user" ? (
-              <div className="flex gap-2">
-                <span
-                  className="shrink-0 text-xs mt-0.5 select-none"
-                  style={{ color: "var(--ide-accent)" }}
-                  aria-hidden="true"
-                >
-                  &gt;
-                </span>
-                <p
-                  className="text-xs leading-relaxed"
-                  style={{ color: "var(--ide-text)" }}
-                >
-                  {msg.content}
-                </p>
-              </div>
-            ) : (
-              <div
-                className="pl-3 text-xs leading-relaxed whitespace-pre-line"
+              <p
+                className="text-xs leading-relaxed px-3 py-2"
                 style={{
-                  borderLeft: `2px solid var(--ide-border)`,
-                  color: "var(--ide-text-muted)",
+                  background: "var(--ide-user-bubble)",
+                  color: "var(--ide-user-bubble-text)",
+                  borderRadius: "12px 12px 2px 12px",
+                  maxWidth: "80%",
                 }}
               >
-                {msg.content}
+                {messageText(msg)}
+              </p>
+            ) : (
+              <div
+                className="rounded text-xs leading-relaxed whitespace-pre-line px-3 py-2"
+                style={{
+                  background: "var(--ide-agent-bg)",
+                  color: "var(--ide-text)",
+                }}
+              >
+                <span
+                  className="block text-xs mb-1 select-none"
+                  style={{ color: "var(--ide-accent)" }}
+                >
+                  joelLM
+                </span>
+                {messageText(msg)}
               </div>
             )}
           </div>
         ))}
+        {busy && (
+          <div
+            className="rounded text-xs leading-relaxed px-3 py-2"
+            style={{
+              background: "var(--ide-agent-bg)",
+              color: "var(--ide-text)",
+            }}
+          >
+            <span
+              className="block text-xs mb-1 select-none"
+              style={{ color: "var(--ide-accent)" }}
+            >
+              joelLM
+            </span>
+            Thinking…
+          </div>
+        )}
+        {error && (
+          <div
+            className="pl-3 text-xs leading-relaxed"
+            style={{ color: "var(--ide-accent)" }}
+          >
+            Something went wrong. Please try again.
+          </div>
+        )}
         <div ref={bottomRef} />
       </div>
 
@@ -146,7 +160,10 @@ export function ChatPanel() {
         </div>
 
         {/* Prompt line */}
-        <div className="flex items-center gap-2 px-3 py-2">
+        <form
+          className="flex items-center gap-2 px-3 py-2"
+          onSubmit={handleFormSubmit}
+        >
           <span
             className="text-xs shrink-0 select-none"
             style={{ color: "var(--ide-accent)" }}
@@ -158,7 +175,6 @@ export function ChatPanel() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder="Ask about Joel or request a restyle…"
             aria-label="Chat input"
             className="flex-1 bg-transparent text-xs outline-none"
@@ -168,7 +184,8 @@ export function ChatPanel() {
             }}
           />
           <button
-            onClick={handleSend}
+            type="submit"
+            disabled={busy}
             aria-label="Send message"
             className="flex items-center justify-center w-6 h-6 rounded shrink-0"
             style={{
@@ -179,7 +196,7 @@ export function ChatPanel() {
           >
             <CornerDownLeft size={12} />
           </button>
-        </div>
+        </form>
       </div>
     </div>
   )
