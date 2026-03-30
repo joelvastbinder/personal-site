@@ -13,12 +13,20 @@ const MAX_CHAT_VW = 0.7
 export default function Page() {
   const [theme, setTheme] = useState<Theme>("dark")
   const [chatWidth, setChatWidth] = useState(380)
+  const [generatedHTML, setGeneratedHTML] = useState<string | null>(null)
   const isDragging = useRef(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const handleThemeChange = (t: Theme) => {
     setTheme(t)
   }
+
+  const handleHTMLGenerated = useCallback((html: string) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'page.tsx:21',message:'handleHTMLGenerated called',data:{htmlLength:html.length},timestamp:Date.now(),hypothesisId:'H5'})}).catch(()=>{});
+    // #endregion
+    setGeneratedHTML(html)
+  }, [])
 
   const onDragStart = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
@@ -66,7 +74,7 @@ export default function Page() {
       >
         {/* Left — Resume Preview */}
         <div className="flex-1 overflow-hidden min-w-0">
-          <ResumePanel />
+          <ResumePanel generatedHTML={generatedHTML} />
         </div>
 
         {/* Drag handle */}
@@ -118,7 +126,7 @@ export default function Page() {
             borderTop: "none",
           }}
         >
-          <ChatPanel />
+          <ChatPanel onHTMLGenerated={handleHTMLGenerated} />
         </div>
       </div>
 

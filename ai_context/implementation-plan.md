@@ -21,7 +21,7 @@ Build the two-panel layout in v0 with no live functionality. Left panel shows pl
 Wire up the Vercel AI SDK with a Next.js API route. The agent gets the resume content (e.g. markdown or plain text from the same source as the site) as system context and answers questions about it conversationally. Chat is now live — messages send, stream back, render in the right panel. No restyling yet.
 
 ### Step 3 — AI-driven UI Restyling
-Extend the agent to detect restyle requests and return generated HTML/CSS that presents the resume content. The left panel swaps from unstyled HTML into the agent's rendered HTML. Content stays immutable — only presentation changes.
+Extend the agent to detect restyle requests and return generated HTML/CSS that presents the resume content in the form of apersonal website. The left panel swaps from unstyled HTML into the agent's rendered HTML. Content stays immutable but the form and presentation can change significantly.
 
 ### Step 4 — Version History (Undo/Redo)
 Snapshot each agent-generated UI state into a history store. Wire up ← → controls on the left panel. Cap at 10 versions (FIFO), persist the current version to `localStorage`.

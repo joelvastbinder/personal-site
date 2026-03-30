@@ -3,9 +3,10 @@
 import { useRef, useEffect, useState, type FormEvent } from "react"
 import { CornerDownLeft } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
+import { DefaultChatTransport } from "ai"
 import type { UIMessage } from "ai"
 
-type Mode = "auto" | "qa" | "restyle"
+type Mode = "qa" | "restyle"
 
 function messageText(message: UIMessage): string {
   return message.parts
@@ -14,10 +15,18 @@ function messageText(message: UIMessage): string {
     .join("")
 }
 
-export function ChatPanel() {
-  const { messages, sendMessage, status, error } = useChat()
+interface ChatPanelProps {
+  onHTMLGenerated?: (html: string) => void
+}
+
+export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
+  const [mode, setMode] = useState<Mode>("qa")
+  const { messages, sendMessage, status, error } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+    }),
+  })
   const [input, setInput] = useState("")
-  const [mode, setMode] = useState<Mode>("auto")
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const busy = status === "submitted" || status === "streaming"
@@ -26,16 +35,59 @@ export function ChatPanel() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1]
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'chat-panel.tsx:35',message:'Messages updated',data:{messageCount:messages.length,lastMessageRole:lastMessage?.role,lastMessagePartCount:lastMessage?.parts?.length},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{});
+    // #endregion
+    
+    if (lastMessage?.role === "assistant") {
+      for (const part of lastMessage.parts) {
+        // #region agent log
+        fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'chat-panel.tsx:42',message:'Checking message part',data:{partType:part.type,partState:'state' in part ? part.state : 'no-state'},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{});
+        // #endregion
+        
+        if (
+          part.type === "tool-generate_resume_html" &&
+          part.state === "output-available"
+        ) {
+          const result = part.output as {
+            success?: boolean
+            html?: string
+            theme_description?: string
+            error?: string
+          }
+          
+          // #region agent log
+          fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'chat-panel.tsx:57',message:'Tool result found',data:{success:result.success,hasHTML:!!result.html,htmlLength:result.html?.length,hasError:!!result.error,errorPreview:result.error?.substring(0,100)},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{});
+          // #endregion
+          
+          if (result.success && result.html && onHTMLGenerated) {
+            // #region agent log
+            fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'chat-panel.tsx:64',message:'Calling onHTMLGenerated',data:{htmlLength:result.html.length},timestamp:Date.now(),hypothesisId:'H5'})}).catch(()=>{});
+            // #endregion
+            onHTMLGenerated(result.html)
+          }
+        }
+      }
+    }
+  }, [messages, onHTMLGenerated])
+
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const text = input.trim()
     if (!text || busy) return
-    void sendMessage({ text })
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'chat-panel.tsx:72',message:'Sending message',data:{mode:mode,text:text.substring(0,50)},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
+    // #endregion
+    
+    void sendMessage({ text }, { body: { mode } })
     setInput("")
   }
 
   const modeLabels: Record<Mode, string> = {
-    auto: "Auto",
     qa: "Q&A",
     restyle: "Restyle",
   }
@@ -141,7 +193,7 @@ export function ChatPanel() {
           >
             mode:
           </span>
-          {(["auto", "qa", "restyle"] as Mode[]).map((m) => (
+          {(["qa", "restyle"] as Mode[]).map((m) => (
             <button
               key={m}
               onClick={() => setMode(m)}
