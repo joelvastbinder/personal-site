@@ -30,11 +30,11 @@ const chatBodySchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
-  const modelId = process.env.VERCEL_MODEL
+  const defaultModelId = process.env.VERCEL_MODEL
   const apiKey =
     process.env.AI_GATEWAY_API_KEY ?? process.env.VERCEL_AI_SDK_API_KEY
 
-  if (!modelId) {
+  if (!defaultModelId) {
     return new Response("Model id (VERCEL_MODEL) is not configured.", {
       status: 500,
     })
@@ -64,24 +64,32 @@ export async function POST(req: NextRequest) {
     return new Response("Invalid request body.", { status: 400 })
   }
 
-  console.log("[API] Request mode:", parsed.data.mode)
-  console.log("[API] Tools defined:", parsed.data.mode === "restyle" ? "yes" : "no")
+  const mode = parsed.data.mode ?? "qa"
+
+  // Select model based on mode
+  // Q&A mode: use default (fast, cheap Gemini Flash Lite)
+  // Restyle mode: use GPT-5-mini for better creative design
+  const modelId = mode === "restyle" ? "openai/gpt-5-mini" : defaultModelId
+
+  console.log("[API] Request mode:", mode)
+  console.log("[API] Selected model:", modelId)
+  console.log("[API] Tools defined:", mode === "restyle" ? "yes" : "no")
 
   // #region agent log
-  fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'route.ts:67',message:'API request received',data:{mode:parsed.data.mode,messageCount:parsed.data.messages.length},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
+  fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'route.ts:67',message:'API request received',data:{mode,modelId,messageCount:parsed.data.messages.length},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
   // #endregion
 
-  const systemPrompt = buildSystemPrompt(parsed.data.mode ?? "qa")
+  const systemPrompt = buildSystemPrompt(mode)
   const gateway = createGateway({ apiKey })
 
   const modelMessages = await convertToModelMessages(parsed.data.messages)
 
   const tools =
-    parsed.data.mode === "restyle"
+    mode === "restyle"
       ? {
           generate_resume_html: {
             description:
-              "Generate a complete HTML document that presents Joel's resume content in the requested theme or layout. All content must be factually accurate and derived from the source resume. Include inline CSS in <style> tags and inline JavaScript in <script> tags if needed. Prefer vanilla HTML/CSS/JS - avoid external CDN libraries unless absolutely necessary. Return a complete, valid HTML5 document.",
+              "Generate a complete, self-contained HTML document that showcases Joel's professional brand and experience in the requested style. Create a modern personal brand website (not a traditional resume layout). CRITICAL: Due to sandbox restrictions, ALL resources must be inline - generate extensive inline SVG graphics for icons, backgrounds, and decorative elements; use sophisticated CSS visual effects for depth and polish; use web-safe font stacks only (NO external CDN libraries, Google Fonts, or external images will load). All factual content must be accurate. Return a complete, valid HTML5 document.",
             inputSchema: z.object({
               html: z
                 .string()
@@ -160,7 +168,6 @@ export async function POST(req: NextRequest) {
       stopWhen: stepCountIs(5),
       onStepFinish: async (step) => {
         console.log("[STEP]", JSON.stringify({
-          stepType: step.stepType,
           toolCallsCount: step.toolCalls?.length || 0,
           toolNames: step.toolCalls?.map(tc => tc.toolName),
           textLength: step.text?.length || 0,
@@ -171,7 +178,7 @@ export async function POST(req: NextRequest) {
           response: step.response,
         }))
         // #region agent log
-        fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'route.ts:155',message:'Step finished',data:{stepType:step.stepType,toolCallsCount:step.toolCalls?.length||0,toolNames:step.toolCalls?.map(tc=>tc.toolName),textLength:step.text?.length||0,finishReason:step.finishReason,warningsCount:step.warnings?.length||0,toolResultsCount:step.toolResults?.length||0,responseMessages:step.response?.messages?.map(m=>({role:m.role,contentLength:JSON.stringify(m.content).length}))},timestamp:Date.now(),hypothesisId:'H7'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'route.ts:155',message:'Step finished',data:{toolCallsCount:step.toolCalls?.length||0,toolNames:step.toolCalls?.map(tc=>tc.toolName),textLength:step.text?.length||0,finishReason:step.finishReason,warningsCount:step.warnings?.length||0,toolResultsCount:step.toolResults?.length||0,responseMessages:step.response?.messages?.map(m=>({role:m.role,contentLength:JSON.stringify(m.content).length}))},timestamp:Date.now(),hypothesisId:'H7'})}).catch(()=>{});
         // #endregion
       },
       onError: async (error) => {
