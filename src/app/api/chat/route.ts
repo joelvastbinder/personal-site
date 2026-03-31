@@ -67,16 +67,8 @@ export async function POST(req: NextRequest) {
 
   // Select model based on mode
   // Q&A mode: use default (fast, cheap Gemini Flash Lite)
-  // Restyle mode: use GPT-5-mini for better creative design
-  const modelId = mode === "restyle" ? "openai/gpt-5-mini" : defaultModelId
-
-  console.log("[API] Request mode:", mode)
-  console.log("[API] Selected model:", modelId)
-  console.log("[API] Tools defined:", mode === "restyle" ? "yes" : "no")
-
-  // #region agent log
-  fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'route.ts:67',message:'API request received',data:{mode,modelId,messageCount:parsed.data.messages.length},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
-  // #endregion
+  // Restyle mode: use Claude Sonnet for better creative design
+  const modelId = mode === "restyle" ? "openai/gpt-5.1-codex-mini" : defaultModelId
 
   const systemPrompt = buildSystemPrompt(mode)
   const gateway = createGateway({ apiKey })
@@ -106,17 +98,8 @@ export async function POST(req: NextRequest) {
               html: string
               theme_description: string
             }) => {
-              console.log("[TOOL] generate_resume_html called!")
-              console.log("[TOOL] HTML length:", html.length)
-              console.log("[TOOL] Theme:", theme_description)
-              
-              // #region agent log
-              fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'route.ts:95',message:'Tool execute called',data:{htmlLength:html.length,themeDescription:theme_description},timestamp:Date.now(),hypothesisId:'H3'})}).catch(()=>{});
-              // #endregion
-              
               const syntaxResult = validateHTMLSyntax(html)
               if (!syntaxResult.valid) {
-                console.log("[TOOL] Syntax validation failed:", syntaxResult.errors)
                 return {
                   error: `HTML syntax errors: ${syntaxResult.errors?.join(", ")}`,
                 }
@@ -142,21 +125,11 @@ export async function POST(req: NextRequest) {
               //   }
               // }
 
-              console.log("[TOOL] Validation passed! Returning success")
-              
-              // #region agent log
-              fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'route.ts:126',message:'Tool validation passed',data:{success:true,htmlLength:html.length},timestamp:Date.now(),hypothesisId:'H3'})}).catch(()=>{});
-              // #endregion
-              
               return { success: true, html, theme_description }
             },
           },
         }
       : undefined
-
-  // #region agent log
-  fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'route.ts:119',message:'Tools configuration',data:{toolsDefined:tools!==undefined,toolNames:tools?Object.keys(tools):[]},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{});
-  // #endregion
 
   try {
     const result = streamText({
@@ -165,39 +138,11 @@ export async function POST(req: NextRequest) {
       messages: modelMessages,
       tools,
       stopWhen: stepCountIs(5),
-      onStepFinish: async (step) => {
-        console.log("[STEP]", JSON.stringify({
-          toolCallsCount: step.toolCalls?.length || 0,
-          toolNames: step.toolCalls?.map(tc => tc.toolName),
-          textLength: step.text?.length || 0,
-          finishReason: step.finishReason,
-          hasWarnings: step.warnings?.length || 0,
-          hasToolResults: step.toolResults?.length || 0,
-          text: step.text,
-          response: step.response,
-        }))
-        // #region agent log
-        fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'route.ts:155',message:'Step finished',data:{toolCallsCount:step.toolCalls?.length||0,toolNames:step.toolCalls?.map(tc=>tc.toolName),textLength:step.text?.length||0,finishReason:step.finishReason,warningsCount:step.warnings?.length||0,toolResultsCount:step.toolResults?.length||0,responseMessages:step.response?.messages?.map(m=>({role:m.role,contentLength:JSON.stringify(m.content).length}))},timestamp:Date.now(),hypothesisId:'H7'})}).catch(()=>{});
-        // #endregion
-      },
-      onError: async (error) => {
-        console.error("[STREAM ERROR]", error)
-        // #region agent log
-        fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'route.ts:175',message:'Stream error event',data:{errorMessage:error instanceof Error?error.message:String(error),errorStack:error instanceof Error?error.stack:undefined},timestamp:Date.now(),hypothesisId:'H10'})}).catch(()=>{});
-        // #endregion
-      },
     })
-
-    // #region agent log
-    fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'route.ts:180',message:'Before toUIMessageStreamResponse',data:{hasResult:true},timestamp:Date.now(),hypothesisId:'H8'})}).catch(()=>{});
-    // #endregion
 
     return result.toUIMessageStreamResponse()
   } catch (err) {
     console.error("[API] streamText error:", err)
-    // #region agent log
-    fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'route.ts:193',message:'streamText error caught',data:{error:err instanceof Error?err.message:String(err)},timestamp:Date.now(),hypothesisId:'H9'})}).catch(()=>{});
-    // #endregion
     throw err
   }
 }

@@ -19,6 +19,12 @@ interface ChatPanelProps {
   onHTMLGenerated?: (html: string) => void
 }
 
+const WELCOME_MESSAGE = {
+  id: "welcome",
+  role: "assistant" as const,
+  content: "Hi! I'm here to help you learn about Joel's experience or help redesign his personal site in real-time.\n\nYou can:\n• Ask questions about Joel's background, skills, and experience\n• Request a UI redesign (e.g., \"Make it look like a LinkedIn profile\" or \"Style it like an 80s terminal\")\n\nWhat would you like to do?",
+}
+
 export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
   const [mode, setMode] = useState<Mode>("qa")
   const { messages, sendMessage, status, error } = useChat({
@@ -27,9 +33,25 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
     }),
   })
   const [input, setInput] = useState("")
+  const [thinkingElapsed, setThinkingElapsed] = useState(0)
+  const [dotCount, setDotCount] = useState(1)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const busy = status === "submitted" || status === "streaming"
+
+  useEffect(() => {
+    if (busy) {
+      const interval = setInterval(() => {
+        setThinkingElapsed(prev => prev + 1)
+        setDotCount(prev => prev === 3 ? 1 : prev + 1)
+      }, 1000)
+      
+      return () => clearInterval(interval)
+    } else {
+      setThinkingElapsed(0)
+      setDotCount(1)
+    }
+  }, [busy])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -38,16 +60,8 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
   useEffect(() => {
     const lastMessage = messages[messages.length - 1]
     
-    // #region agent log
-    fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'chat-panel.tsx:35',message:'Messages updated',data:{messageCount:messages.length,lastMessageRole:lastMessage?.role,lastMessagePartCount:lastMessage?.parts?.length},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{});
-    // #endregion
-    
     if (lastMessage?.role === "assistant") {
       for (const part of lastMessage.parts) {
-        // #region agent log
-        fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'chat-panel.tsx:42',message:'Checking message part',data:{partType:part.type,partState:'state' in part ? part.state : 'no-state'},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{});
-        // #endregion
-        
         if (
           part.type === "tool-generate_resume_html" &&
           part.state === "output-available"
@@ -59,14 +73,7 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
             error?: string
           }
           
-          // #region agent log
-          fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'chat-panel.tsx:57',message:'Tool result found',data:{success:result.success,hasHTML:!!result.html,htmlLength:result.html?.length,hasError:!!result.error,errorPreview:result.error?.substring(0,100)},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{});
-          // #endregion
-          
           if (result.success && result.html && onHTMLGenerated) {
-            // #region agent log
-            fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'chat-panel.tsx:64',message:'Calling onHTMLGenerated',data:{htmlLength:result.html.length},timestamp:Date.now(),hypothesisId:'H5'})}).catch(()=>{});
-            // #endregion
             onHTMLGenerated(result.html)
           }
         }
@@ -78,10 +85,6 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
     e.preventDefault()
     const text = input.trim()
     if (!text || busy) return
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'chat-panel.tsx:72',message:'Sending message',data:{mode:mode,text:text.substring(0,50)},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
-    // #endregion
     
     void sendMessage({ text }, { body: { mode } })
     setInput("")
@@ -116,6 +119,25 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
 
       {/* Message history */}
       <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-4">
+        {/* Welcome message (not sent to AI) */}
+        <div>
+          <div
+            className="rounded text-xs leading-relaxed whitespace-pre-line px-3 py-2"
+            style={{
+              background: "var(--ide-agent-bg)",
+              color: "var(--ide-text)",
+            }}
+          >
+            <span
+              className="block text-xs mb-1 select-none"
+              style={{ color: "var(--ide-accent)" }}
+            >
+              joelLM
+            </span>
+            {WELCOME_MESSAGE.content}
+          </div>
+        </div>
+        
         {messages.map((msg) => (
           <div key={msg.id} className={msg.role === "user" ? "flex justify-end" : ""}>
             {msg.role === "user" ? (
@@ -163,7 +185,7 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
             >
               joelLM
             </span>
-            Thinking…
+            Thinking{".".repeat(dotCount)} {thinkingElapsed}s
           </div>
         )}
         {error && (

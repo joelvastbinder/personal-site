@@ -1,12 +1,16 @@
 "use client"
 
-import { FileCode, ChevronLeft, ChevronRight } from "lucide-react"
+import { FileCode, Undo, Redo } from "lucide-react"
 
 interface ResumePanelProps {
-  generatedHTML?: string | null
+  displayedHTML?: string | null
+  canUndo?: boolean
+  canRedo?: boolean
+  onToggleVersion?: () => void
+  isViewingPrevious?: boolean
 }
 
-export function ResumePanel({ generatedHTML }: ResumePanelProps) {
+export function ResumePanel({ displayedHTML, canUndo, canRedo, onToggleVersion, isViewingPrevious }: ResumePanelProps) {
   return (
     <div
       className="flex flex-col h-full"
@@ -39,40 +43,28 @@ export function ResumePanel({ generatedHTML }: ResumePanelProps) {
         {/* Nav arrows */}
         <div className="flex items-center gap-1 pr-1">
           <button
-            disabled
-            title="Previous version"
+            disabled={!canUndo && !canRedo}
+            onClick={onToggleVersion}
+            title={canRedo ? "Redo" : "Undo"}
             className="flex items-center justify-center w-6 h-6 rounded"
             style={{
-              color: "var(--ide-text-muted)",
+              color: canUndo || canRedo ? "var(--ide-text)" : "var(--ide-text-muted)",
               background: "transparent",
-              cursor: "not-allowed",
-              opacity: 0.4,
+              cursor: canUndo || canRedo ? "pointer" : "not-allowed",
+              opacity: canUndo || canRedo ? 1 : 0.4,
             }}
           >
-            <ChevronLeft size={14} />
-          </button>
-          <button
-            disabled
-            title="Next version"
-            className="flex items-center justify-center w-6 h-6 rounded"
-            style={{
-              color: "var(--ide-text-muted)",
-              background: "transparent",
-              cursor: "not-allowed",
-              opacity: 0.4,
-            }}
-          >
-            <ChevronRight size={14} />
+            {canRedo ? <Redo size={14} /> : <Undo size={14} />}
           </button>
         </div>
       </div>
 
       {/* Content area — browser-default styles, white bg */}
       <div className="flex-1 overflow-auto" style={{ background: "#ffffff" }}>
-        {generatedHTML ? (
+        {displayedHTML ? (
           <iframe
             sandbox="allow-scripts"
-            srcDoc={generatedHTML}
+            srcDoc={displayedHTML}
             style={{ width: "100%", height: "100%", border: "none" }}
             title="Restyled resume"
           />

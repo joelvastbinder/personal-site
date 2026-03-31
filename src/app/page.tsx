@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react"
 import { ResumePanel } from "@/components/resume-panel"
 import { ChatPanel } from "@/components/chat-panel"
 import { TopBar, StatusBar } from "@/components/ide-chrome"
+import { useVersionHistory } from "@/lib/use-version-history"
 
 type Theme = "dark" | "solarized"
 
@@ -13,7 +14,7 @@ const MAX_CHAT_VW = 0.7
 export default function Page() {
   const [theme, setTheme] = useState<Theme>("dark")
   const [chatWidth, setChatWidth] = useState(380)
-  const [generatedHTML, setGeneratedHTML] = useState<string | null>(null)
+  const versionHistory = useVersionHistory()
   const isDragging = useRef(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -22,11 +23,8 @@ export default function Page() {
   }
 
   const handleHTMLGenerated = useCallback((html: string) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7456/ingest/8db02ffb-715e-4f78-a63b-00c78a95fcab',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4c57ba'},body:JSON.stringify({sessionId:'4c57ba',location:'page.tsx:21',message:'handleHTMLGenerated called',data:{htmlLength:html.length},timestamp:Date.now(),hypothesisId:'H5'})}).catch(()=>{});
-    // #endregion
-    setGeneratedHTML(html)
-  }, [])
+    versionHistory.addVersion(html)
+  }, [versionHistory])
 
   const onDragStart = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
@@ -74,7 +72,13 @@ export default function Page() {
       >
         {/* Left — Resume Preview */}
         <div className="flex-1 overflow-hidden min-w-0">
-          <ResumePanel generatedHTML={generatedHTML} />
+          <ResumePanel 
+            displayedHTML={versionHistory.displayedHTML}
+            canUndo={versionHistory.canUndo}
+            canRedo={versionHistory.canRedo}
+            onToggleVersion={versionHistory.toggleVersion}
+            isViewingPrevious={versionHistory.isViewingPrevious}
+          />
         </div>
 
         {/* Drag handle */}
