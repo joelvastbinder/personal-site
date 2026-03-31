@@ -30,12 +30,11 @@ const chatBodySchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
-  const defaultModelId = process.env.VERCEL_MODEL
-  const apiKey =
-    process.env.AI_GATEWAY_API_KEY ?? process.env.VERCEL_AI_SDK_API_KEY
+  const defaultModelId = process.env.BASIC_MODEL
+  const apiKey = process.env.AI_GATEWAY_API_KEY
 
   if (!defaultModelId) {
-    return new Response("Model id (VERCEL_MODEL) is not configured.", {
+    return new Response("Model id (BASIC_MODEL) is not configured.", {
       status: 500,
     })
   }
