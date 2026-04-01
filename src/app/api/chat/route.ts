@@ -21,12 +21,81 @@ function getResumeMarkdown(): string {
   return cachedResume
 }
 
+function messageText(message: UIMessage): string {
+  return message.parts
+    .filter((part): part is { type: "text"; text: string } => part.type === "text")
+    .map((part) => part.text)
+    .join("")
+}
+
+// Routing tools for intent detection
+const routingTools = {
+  qa_response: {
+    description: "Answer a question about Joel's resume, experience, skills, or background. Use this for informational queries.",
+    inputSchema: z.object({
+      question: z.string().describe("The user's question")
+    }),
+    execute: async ({ question }: { question: string }) => {
+      return { intent: "qa" }
+    }
+  },
+  generate_html: {
+    description: "Generate new HTML/CSS to restyle Joel's resume based on a theme, design, or aesthetic request. Use this for UI redesign requests.",
+    inputSchema: z.object({
+      theme_description: z.string().describe("Description of the requested theme or style")
+    }),
+    execute: async ({ theme_description }: { theme_description: string }) => {
+      return { intent: "restyle" }
+    }
+  }
+}
+
+// Detect user intent using BASIC_MODEL with retry logic
+async function detectIntent(
+  messages: UIMessage[], 
+  gateway: ReturnType<typeof createGateway>,
+  basicModel: string
+): Promise<"qa" | "restyle"> {
+  const userMessage = messages[messages.length - 1]
+  
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const routingResult = streamText({
+        model: gateway.languageModel(basicModel),
+        messages: [{
+          role: "system",
+          content: "You help route user requests. Call qa_response for questions about Joel. Call generate_html for UI redesign requests."
+        }, {
+          role: "user", 
+          content: messageText(userMessage)
+        }],
+        tools: routingTools,
+        stopWhen: stepCountIs(1)
+      })
+      
+      for await (const part of (await routingResult).fullStream) {
+        if (part.type === "tool-call") {
+          return part.toolName === "generate_html" ? "restyle" : "qa"
+        }
+      }
+      
+      // If no tool call was made, default to Q&A
+      return "qa"
+    } catch (err) {
+      if (attempt === 0) continue // Retry once
+      // Fall through to throw after retry
+    }
+  }
+  
+  // Both attempts failed - need to ask user
+  throw new Error("ROUTING_AMBIGUOUS")
+}
+
 const chatBodySchema = z.object({
   id: z.string().optional(),
   messages: z.array(z.custom<UIMessage>()),
   trigger: z.string().optional(),
   messageId: z.string().optional(),
-  mode: z.enum(["qa", "restyle"]).optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -63,17 +132,34 @@ export async function POST(req: NextRequest) {
     return new Response("Invalid request body.", { status: 400 })
   }
 
-  const mode = parsed.data.mode ?? "qa"
+  const gateway = createGateway({ apiKey })
+  const modelMessages = await convertToModelMessages(parsed.data.messages)
 
-  // Select model based on mode
+  // Detect intent using routing layer
+  let mode: "qa" | "restyle"
+  try {
+    mode = await detectIntent(parsed.data.messages, gateway, defaultModelId)
+  } catch (err) {
+    if (err instanceof Error && err.message === "ROUTING_AMBIGUOUS") {
+      // Return clarification message
+      const clarificationResult = streamText({
+        model: gateway.languageModel(defaultModelId),
+        messages: [{
+          role: "assistant",
+          content: "I couldn't determine if you're asking about Joel's experience or requesting a UI redesign. Could you clarify whether you want me to:\n\n1. Answer a question about Joel's background, skills, or experience\n2. Redesign the UI in a specific style or theme"
+        }]
+      })
+      return (await clarificationResult).toUIMessageStreamResponse()
+    }
+    throw err
+  }
+
+  // Select model based on detected intent
   // Q&A mode: use default (fast, cheap Gemini Flash Lite)
   // Restyle mode: use Claude Sonnet for better creative design
   const modelId = mode === "restyle" ? "openai/gpt-5.1-codex-mini" : defaultModelId
 
   const systemPrompt = buildSystemPrompt(mode)
-  const gateway = createGateway({ apiKey })
-
-  const modelMessages = await convertToModelMessages(parsed.data.messages)
 
   const tools =
     mode === "restyle"

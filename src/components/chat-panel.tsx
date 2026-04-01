@@ -1,12 +1,11 @@
 "use client"
 
 import { useRef, useEffect, useState, type FormEvent } from "react"
-import { CornerDownLeft } from "lucide-react"
+import { CornerDownLeft, X } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import type { UIMessage } from "ai"
-
-type Mode = "qa" | "restyle"
+import { FloatingChatWidget } from "./floating-chat-widget"
 
 function messageText(message: UIMessage): string {
   return message.parts
@@ -26,7 +25,7 @@ const WELCOME_MESSAGE = {
 }
 
 export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
-  const [mode, setMode] = useState<Mode>("qa")
+  const [isCollapsed, setIsCollapsed] = useState(false)
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
@@ -38,6 +37,26 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const busy = status === "submitted" || status === "streaming"
+
+  // Initialize collapse state from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('chat-collapsed')
+    const isMobile = window.innerWidth < 768
+    
+    if (stored !== null) {
+      setIsCollapsed(stored === 'true')
+    } else {
+      // Default: open on desktop, collapsed on mobile
+      setIsCollapsed(isMobile)
+    }
+  }, [])
+
+  // Sync collapse state to localStorage
+  useEffect(() => {
+    localStorage.setItem('chat-collapsed', isCollapsed.toString())
+    // Emit custom event for same-window updates
+    window.dispatchEvent(new Event('chat-collapsed-changed'))
+  }, [isCollapsed])
 
   useEffect(() => {
     if (busy) {
@@ -86,13 +105,13 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
     const text = input.trim()
     if (!text || busy) return
     
-    void sendMessage({ text }, { body: { mode } })
+    void sendMessage({ text })
     setInput("")
   }
 
-  const modeLabels: Record<Mode, string> = {
-    qa: "Q&A",
-    restyle: "Restyle",
+  // If collapsed, show floating widget
+  if (isCollapsed) {
+    return <FloatingChatWidget onClick={() => setIsCollapsed(false)} />
   }
 
   return (
@@ -102,7 +121,7 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
     >
       {/* Panel title bar */}
       <div
-        className="flex items-center px-3 shrink-0"
+        className="flex items-center justify-between px-3 shrink-0"
         style={{
           height: "36px",
           borderBottom: "2px solid var(--ide-border)",
@@ -115,6 +134,14 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
         >
           joelLM
         </span>
+        <button
+          onClick={() => setIsCollapsed(true)}
+          aria-label="Close chat"
+          className="flex items-center justify-center w-6 h-6 rounded hover:bg-gray-700/50 transition-colors"
+          style={{ color: "var(--ide-text-muted)" }}
+        >
+          <X size={14} />
+        </button>
       </div>
 
       {/* Message history */}
@@ -204,35 +231,6 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
         className="shrink-0"
         style={{ borderTop: "2px solid var(--ide-border)" }}
       >
-        {/* Mode selector row */}
-        <div
-          className="flex items-center gap-1 px-3 py-1.5"
-          style={{ borderBottom: "1px solid var(--ide-border)" }}
-        >
-          <span
-            className="text-xs mr-1"
-            style={{ color: "var(--ide-text-muted)" }}
-          >
-            mode:
-          </span>
-          {(["qa", "restyle"] as Mode[]).map((m) => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              className="px-2 py-0.5 text-xs rounded"
-              style={{
-                background:
-                  mode === m ? "var(--ide-accent)" : "var(--ide-send-bg)",
-                color: mode === m ? "#ffffff" : "var(--ide-text-muted)",
-                border: `1px solid ${mode === m ? "var(--ide-accent)" : "var(--ide-border)"}`,
-                transition: "background 0.1s, color 0.1s",
-              }}
-            >
-              {modeLabels[m]}
-            </button>
-          ))}
-        </div>
-
         {/* Prompt line */}
         <form
           className="flex items-center gap-2 px-3 py-2"
@@ -249,9 +247,10 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about Joel or request a restyle…"
+            disabled={busy}
+            placeholder={busy ? "Thinking..." : "Ask about Joel or request a restyle…"}
             aria-label="Chat input"
-            className="flex-1 bg-transparent text-xs outline-none"
+            className={`flex-1 bg-transparent text-xs outline-none ${busy ? "opacity-50 cursor-not-allowed" : ""}`}
             style={{
               color: "var(--ide-text)",
               caretColor: "var(--ide-accent)",
@@ -259,9 +258,9 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
           />
           <button
             type="submit"
-            disabled={busy}
+            disabled={busy || !input.trim()}
             aria-label="Send message"
-            className="flex items-center justify-center w-6 h-6 rounded shrink-0"
+            className={`flex items-center justify-center w-6 h-6 rounded shrink-0 ${busy ? "opacity-50 cursor-not-allowed" : ""}`}
             style={{
               background: "var(--ide-send-bg)",
               border: "1px solid var(--ide-border)",

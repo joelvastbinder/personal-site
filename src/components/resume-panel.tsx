@@ -1,16 +1,12 @@
 "use client"
 
-import { FileCode, Undo, Redo } from "lucide-react"
+import { FileCode } from "lucide-react"
 
 interface ResumePanelProps {
   displayedHTML?: string | null
-  canUndo?: boolean
-  canRedo?: boolean
-  onToggleVersion?: () => void
-  isViewingPrevious?: boolean
 }
 
-export function ResumePanel({ displayedHTML, canUndo, canRedo, onToggleVersion, isViewingPrevious }: ResumePanelProps) {
+export function ResumePanel({ displayedHTML }: ResumePanelProps) {
   return (
     <div
       className="flex flex-col h-full"
@@ -37,25 +33,7 @@ export function ResumePanel({ displayedHTML, canUndo, canRedo, onToggleVersion, 
           }}
         >
           <FileCode size={13} style={{ color: "var(--ide-accent)" }} />
-          <span>resume.html</span>
-        </div>
-
-        {/* Nav arrows */}
-        <div className="flex items-center gap-1 pr-1">
-          <button
-            disabled={!canUndo && !canRedo}
-            onClick={onToggleVersion}
-            title={canRedo ? "Redo" : "Undo"}
-            className="flex items-center justify-center w-6 h-6 rounded"
-            style={{
-              color: canUndo || canRedo ? "var(--ide-text)" : "var(--ide-text-muted)",
-              background: "transparent",
-              cursor: canUndo || canRedo ? "pointer" : "not-allowed",
-              opacity: canUndo || canRedo ? 1 : 0.4,
-            }}
-          >
-            {canRedo ? <Redo size={14} /> : <Undo size={14} />}
-          </button>
+          <span>joel-personal-site.html</span>
         </div>
       </div>
 

@@ -6,4 +6,4 @@ we'll store it in a markdown in the specs directory calling it something like {{
 
 before drafting the spec, analyze the implementation plan to determine any further information you need.
 
-ask me any questions you have before drafting the spec
+ask me any questions you have before drafting the spec. don't make any assumptions about our approach

@@ -29,6 +29,11 @@ Extend the agent to detect restyle requests and return generated HTML/CSS that p
 - Let's add a bio/instructions section at the top left side of the screen similar to a resume summary where it says who I am and why I'm interesting. It should also explain in a lighthearted tone that since I'm not interested in becoming a purely frontend developer, I want people to help me design a more compelling personal site which can be done via the chat interface
 - The Chat interface should be prepopulated with instructions explaining that people can either ask questions about me or redesign the UI of my site which will repopulate the preview panel
 
+### Step 5 - Final final ux polishing
+- Have the agent chat be hideable. When hidden it should look like the screenshot attached in the prompt - a floating circle in the bottom right of the screen and a chat bubble that says "I'm here to help". For the image in the circle, create an SVG image that looks like an AI company logo just also has my initials JV in it. It should vaguely resemble a butthole in the way that people make fun of ai companies for. On a mobile viewport it should be closed be default but on desktop it should be open by default
+- Disable the chatbox while it's thinking. To avoid people sending double messages and having to figure out what to do with that
+- Get rid of the mode switcher and instead use the cheap default model to quickly choose whether we route between the q&a flow and the restyling flow
+
 ## Future Development
 
 ### Agent Guardrails & Redirects
