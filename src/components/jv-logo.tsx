@@ -18,7 +18,7 @@ export function JVLogo() {
       
       {/* Inner geometric pattern - J shape */}
       <path
-        d="M 12 8 L 12 18 Q 12 22 16 22"
+        d="M 12 8 L 12 18 Q 12 22 8 22"
         stroke="currentColor"
         strokeWidth="2.5"
         strokeLinecap="round"

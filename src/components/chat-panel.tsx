@@ -21,7 +21,7 @@ interface ChatPanelProps {
 const WELCOME_MESSAGE = {
   id: "welcome",
   role: "assistant" as const,
-  content: "Hi! I'm here to help you learn about Joel's experience or help redesign his personal site in real-time.\n\nYou can:\n• Ask questions about Joel's background, skills, and experience\n• Request a UI redesign (e.g., \"Make it look like a LinkedIn profile\" or \"Style it like an 80s terminal\")\n\nWhat would you like to do?",
+  content: "Hi! I'm here to help you explore Joel's work and redesign this site in real-time.\n\nYou can:\n• Ask questions about Joel's projects, skills, and experience\n• Request a UI redesign (e.g., \"Make it look like a LinkedIn profile\" or \"Style it like an 80s terminal\")\n\nWhat would you like to do?",
 }
 
 export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
@@ -248,7 +248,7 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={busy}
-            placeholder={busy ? "Thinking..." : "Ask about Joel or request a restyle…"}
+            placeholder={busy ? "Thinking..." : "Ask about Joel's work or request a redesign…"}
             aria-label="Chat input"
             className={`flex-1 bg-transparent text-xs outline-none ${busy ? "opacity-50 cursor-not-allowed" : ""}`}
             style={{

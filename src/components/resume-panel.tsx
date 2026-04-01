@@ -44,11 +44,11 @@ export function ResumePanel({ displayedHTML }: ResumePanelProps) {
             sandbox="allow-scripts"
             srcDoc={displayedHTML}
             style={{ width: "100%", height: "100%", border: "none" }}
-            title="Restyled resume"
+            title="Restyled personal site"
           />
         ) : (
           <div
-            className="resume-content"
+            className="site-content"
             style={{
               padding: "24px 32px",
               fontFamily: "Georgia, 'Times New Roman', serif",

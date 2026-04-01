@@ -95,7 +95,7 @@ export default function Page() {
         ref={containerRef}
         className="flex flex-1 overflow-hidden relative"
       >
-        {/* Left — Resume Preview */}
+        {/* Left — Site Preview */}
         <div className={`overflow-hidden min-w-0 transition-all duration-0 ${isChatCollapsed ? "flex-1" : "flex-1"}`}>
           <ResumePanel 
             displayedHTML={displayedHTML}

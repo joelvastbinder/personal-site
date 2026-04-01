@@ -31,7 +31,7 @@ function messageText(message: UIMessage): string {
 // Routing tools for intent detection
 const routingTools = {
   qa_response: {
-    description: "Answer a question about Joel's resume, experience, skills, or background. Use this for informational queries.",
+    description: "Answer a question about Joel's experience, skills, or background. Use this for informational queries.",
     inputSchema: z.object({
       question: z.string().describe("The user's question")
     }),
@@ -40,7 +40,7 @@ const routingTools = {
     }
   },
   generate_html: {
-    description: "Generate new HTML/CSS to restyle Joel's resume based on a theme, design, or aesthetic request. Use this for UI redesign requests.",
+    description: "Generate new HTML/CSS to restyle Joel's personal site based on a theme, design, or aesthetic request. Use this for UI redesign requests.",
     inputSchema: z.object({
       theme_description: z.string().describe("Description of the requested theme or style")
     }),
