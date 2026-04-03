@@ -23,10 +23,10 @@ export function TopBar({ theme, onThemeChange }: TopBarProps) {
         style={{ color: "var(--ide-text)" }}
       >
         <span style={{ color: "var(--ide-accent)", fontWeight: 700 }}>
-          joel
+          joelv
         </span>
         <span style={{ color: "var(--ide-text-muted)", fontWeight: 400 }}>
-          .dev
+          .tech
         </span>
       </span>
 
