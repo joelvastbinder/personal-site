@@ -6,7 +6,7 @@ This document supplements the resume content for conversational Q&A. Use it to a
 
 ## What Excites Joel About His Work
 
-Joel gets most excited by work that ties directly to real-world, human impact. Mission-driven spaces like health tech and education energize him — but so do drier industries like government, as long as the work connects back to a tangible human outcome. The industry matters less than the impact.
+Joel gets most excited by work that ties directly to real-world, human impact. Mission-driven spaces like health tech and education energize him — but also any project as long as the work connects back to a tangible human outcome. The industry matters less than the impact.
 
 ---
 

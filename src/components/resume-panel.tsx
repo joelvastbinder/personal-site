@@ -67,19 +67,22 @@ export function ResumePanel({ displayedHTML }: ResumePanelProps) {
 
             <div style={{ marginBottom: "48px", fontSize: "16px", lineHeight: "1.7" }}>
               <p style={{ marginBottom: "16px" }}>
-                I get excited solving problems that make a tangible difference in people's lives. 
-                I believe good software gets out of the way. It matches how people actually work 
-                instead of forcing them to conform to a completely new process.
-                That's been the throughline across everything I've built, from a compliance platform
-                that serves 25,000+ students across 20+ institutions to security infrastructure protecting millions of patient 
-                records.
+              I believe good software gets out of the way. A quality tool should feel almost familiar to new 
+              users because it solves a real, human problem. It should amplify the impact the user is already 
+              making without overcomplicating the process. 
               </p>
               <p style={{ marginBottom: "16px" }}>
-                So when I set out to build a personal site, I didn't want to build a generic template site but 
-                I wanted something that was fun for me to build and still communicates who I am and how I work. 
-                So try out the chat panel on the right (or bottom right if you're on mobile) and see what it can 
-                do. It's an AI agent that knows my background. Ask it anything about my experience, or tell it 
-                how you want the page to look or how you want the experience to be presented.
+              I get excited solving problems that make a tangible difference in people's lives, and that's 
+              been the throughline across everything I've built, from a compliance platform that serves 
+              thousands of students across dozens of institutions to security infrastructure protecting 
+              millions of patient records.
+              </p>
+              <p style={{ marginBottom: "16px" }}>
+              That’s why when I set out to build a personal site, I didn't want to build a generic template site; 
+              I wanted something that was fun for me to build and still communicated who I am. So try out the chat 
+              panel on the right (or bottom right if you're on mobile) and see what it can do. It's an AI agent that 
+              knows my background. Ask it anything about my experience, or tell it how you want the page to look, or 
+              how you want the experience to be presented.
               </p>
             </div>
 
@@ -90,7 +93,7 @@ export function ResumePanel({ displayedHTML }: ResumePanelProps) {
                 What I Do
               </h2>
               <p style={{ marginBottom: "12px" }}>
-                Currently serving as the Engineering Lead for a 6-person engineering team at 
+                Currently serving as the Tech Lead for a 6-person engineering team at 
                 HarperRand-CALRegional, working on products like a compliance platform I led 
                 the development and launch of serving 25,000+ students across 20+ institutions. 
                 I've also worked on process automation projects like a RAG-enabled AI support 
@@ -98,11 +101,15 @@ export function ResumePanel({ displayedHTML }: ResumePanelProps) {
                 enrollment process that reduced the allowed us to enroll 1000 more students 
                 in a quarter without additional headcount.
               </p>
-              <p>
+              <p style={{ marginBottom: "12px" }}>
                 Before that: security engineering at a $2B+ healthcare company protecting
                 3M+ patient records, DevOps for a platform distributing $100M+ in social
                 benefits, and working at school doing automation work that saved organizations 
                 hundreds of hours of manual work.
+              </p>
+              <p style={{ marginBottom: "12px" }}>
+                When I'm not working, I like hanging out with my wife, Julianne, and our dog, Wendell. 
+                I also like to play guitar, read, and build Lego.
               </p>
             </div>
 
@@ -121,9 +128,6 @@ export function ResumePanel({ displayedHTML }: ResumePanelProps) {
                 Links
               </h2>
               <p>
-                <a href="mailto:jvastbinder513@gmail.com" style={{ marginRight: "16px", color: "#0066cc" }}>
-                  Email
-                </a>
                 <a href="https://linkedin.com/in/joel-vastbinder/" style={{ marginRight: "16px", color: "#0066cc" }}>
                   LinkedIn
                 </a>
