@@ -87,8 +87,8 @@ async function detectIntent(
         }
       }
       
-      // If no tool call was made, default to Q&A
-      return "qa"
+      // If no tool call was made, ask for clarification rather than guessing
+      throw new Error("ROUTING_AMBIGUOUS")
     } catch (err) {
       if (attempt === 0) continue // Retry once
       // Fall through to throw after retry
@@ -107,7 +107,7 @@ const chatBodySchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
-  const defaultModelId = process.env.BASIC_MODEL
+  const defaultModelId = "anthropic/claude-haiku-4.5"
   const apiKey = process.env.AI_GATEWAY_API_KEY
 
   if (!defaultModelId) {
@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
       ? {
           generate_resume_html: {
             description:
-              "Generate a complete, self-contained HTML document that showcases Joel's professional brand and experience in the requested style or according . Create a modern personal brand website (not a traditional resume layout). CRITICAL: Due to sandbox restrictions, ALL resources must be inline - generate extensive inline SVG graphics for icons, backgrounds, and decorative elements; use sophisticated CSS visual effects for depth and polish; use web-safe font stacks only (NO external CDN libraries, Google Fonts, or external images will load). All factual content must be accurate. Return a complete, valid HTML5 document.",
+              "Generate a complete, self-contained HTML document that showcases Joel's professional brand and experience in the requested style or according . Create a modern personal brand website (not a traditional resume layout). CRITICAL: Due to sandbox restrictions, ALL resources must be inline - generate inline SVG graphics for icons, backgrounds, and decorative elements; use sophisticated CSS visual effects for depth and polish; use web-safe font stacks only (NO external CDN libraries, Google Fonts, or external images will load). All factual content must be accurate. Return a complete, valid HTML5 document.",
             inputSchema: z.object({
               html: z
                 .string()
