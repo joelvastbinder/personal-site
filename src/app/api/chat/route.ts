@@ -31,7 +31,8 @@ function messageText(message: UIMessage): string {
 // Routing tools for intent detection
 const routingTools = {
   qa_response: {
-    description: "Answer a question about Joel's experience, skills, or background. Use this for informational queries.",
+    description:
+      "Answer a question about Joel's experience, skills, or background. Use only when the user wants information in plain text — no website, page, HTML, layout, theme, or visual redesign.",
     inputSchema: z.object({
       question: z.string().describe("The user's question")
     }),
@@ -40,7 +41,8 @@ const routingTools = {
     }
   },
   generate_html: {
-    description: "Generate new HTML/CSS to restyle Joel's personal site based on a theme, design, or aesthetic request. Use this for UI redesign requests.",
+    description:
+      "Generate HTML/CSS to present Joel's site content. Use whenever the user asks to build, create, or redesign a website or page, restyle or retheme the UI, apply a visual aesthetic, or frame the resume as a themed or hypothetical pitch (e.g. for a startup or product). If they mention building a site, making it look a certain way, or similar — use this tool, even if they also ask how Joel would fit a role.",
     inputSchema: z.object({
       theme_description: z.string().describe("Description of the requested theme or style")
     }),
@@ -64,7 +66,13 @@ async function detectIntent(
         model: gateway.languageModel(basicModel),
         messages: [{
           role: "system",
-          content: "You help route user requests. Call qa_response for questions about Joel. Call generate_html for UI redesign requests."
+          content: [
+            "Route each user message by calling exactly one tool.",
+            "",
+            "Call generate_html if the user mentions any of: building / making / creating a website, web page, or landing page; restyling, redesigning, retheming, or changing how the site looks; a visual theme, aesthetic, or \"make it look like …\"; HTML, layout, or UI; or presenting Joel's resume as a themed or hypothetical pitch (e.g. for a company or startup). Mixed messages that include both a fit question and \"build a site\" → generate_html.",
+            "",
+            "Call qa_response only for straightforward informational questions about Joel (skills, experience, background) with no request to build, restyle, or visually present a site.",
+          ].join("\n"),
         }, {
           role: "user", 
           content: messageText(userMessage)
@@ -157,7 +165,7 @@ export async function POST(req: NextRequest) {
   // Select model based on detected intent
   // Q&A mode: use default (fast, cheap Gemini Flash Lite)
   // Restyle mode: use Claude Sonnet for better creative design
-  const modelId = mode === "restyle" ? "openai/gpt-5.1-codex-mini" : defaultModelId
+  const modelId = mode === "restyle" ? "anthropic/claude-haiku-4.5" : defaultModelId
 
   const systemPrompt = buildSystemPrompt(mode)
 
@@ -166,7 +174,7 @@ export async function POST(req: NextRequest) {
       ? {
           generate_resume_html: {
             description:
-              "Generate a complete, self-contained HTML document that showcases Joel's professional brand and experience in the requested style. Create a modern personal brand website (not a traditional resume layout). CRITICAL: Due to sandbox restrictions, ALL resources must be inline - generate extensive inline SVG graphics for icons, backgrounds, and decorative elements; use sophisticated CSS visual effects for depth and polish; use web-safe font stacks only (NO external CDN libraries, Google Fonts, or external images will load). All factual content must be accurate. Return a complete, valid HTML5 document.",
+              "Generate a complete, self-contained HTML document that showcases Joel's professional brand and experience in the requested style or according . Create a modern personal brand website (not a traditional resume layout). CRITICAL: Due to sandbox restrictions, ALL resources must be inline - generate extensive inline SVG graphics for icons, backgrounds, and decorative elements; use sophisticated CSS visual effects for depth and polish; use web-safe font stacks only (NO external CDN libraries, Google Fonts, or external images will load). All factual content must be accurate. Return a complete, valid HTML5 document.",
             inputSchema: z.object({
               html: z
                 .string()

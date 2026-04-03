@@ -21,7 +21,15 @@ interface ChatPanelProps {
 const WELCOME_MESSAGE = {
   id: "welcome",
   role: "assistant" as const,
-  content: "Hi! I'm here to help you explore Joel's work and redesign this site in real-time.\n\nYou can:\n• Ask questions about Joel's projects, skills, and experience\n• Request a UI redesign (e.g., \"Make it look like a LinkedIn profile\" or \"Style it like an 80s terminal\")\n\nWhat would you like to do?",
+  content: [
+    "Hi! I'm here to help you explore Joel's work and redesign this site in real-time.",
+    "",
+    "You can:",
+    "• Ask questions about Joel's projects, skills, and experience",
+    "• Request a UI redesign based on a theme  or a different way to present Joel's experience. e.g., \"Create a trivia game to teach me more Joel's experience\" or \"Style it like an 80s terminal.\"",
+    "",
+    "Get as creative as you want! I'm here to help."
+  ].join("\n"),
 }
 
 export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {

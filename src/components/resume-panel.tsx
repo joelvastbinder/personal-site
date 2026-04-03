@@ -48,151 +48,88 @@ export function ResumePanel({ displayedHTML }: ResumePanelProps) {
           />
         ) : (
           <div
-            className="site-content"
             style={{
-              padding: "24px 32px",
-              fontFamily: "Georgia, 'Times New Roman', serif",
-              color: "#000000",
-              fontSize: "16px",
-              lineHeight: "1.5",
-              maxWidth: "780px",
+              padding: "48px 32px",
+              fontFamily: "system-ui, -apple-system, sans-serif",
+              color: "#1a1a1a",
+              fontSize: "15px",
+              lineHeight: "1.6",
+              maxWidth: "680px",
+              margin: "0 auto",
             }}
           >
-            <h1>Joel Vastbinder</h1>
-            <p>
-              <strong>Indianapolis, IN</strong> |{" "}
-              <strong>(260) 797-9634</strong> |{" "}
-              <strong>jvastbinder513@gmail.com</strong>{" "}
-              <a href="https://linkedin.com/in/joel-vastbinder/">LinkedIn</a> |{" "}
-              <a href="https://github.com/joelvastbinder">GitHub</a>
+            <h1 style={{ fontSize: "28px", fontWeight: "600", marginBottom: "8px" }}>
+              Joel Vastbinder
+            </h1>
+            <p style={{ color: "#666", marginBottom: "40px" }}>
+              Lead Engineer · Indianapolis
             </p>
 
-            <hr />
+            <div style={{ marginBottom: "48px", fontSize: "16px", lineHeight: "1.7" }}>
+              <p style={{ marginBottom: "16px" }}>
+                I get excited solving problems that make a tangible difference in people's lives. 
+                I believe good software gets out of the way. It matches how people actually work 
+                instead of forcing them to conform to a completely new process.
+                That's been the throughline across everything I've built, from a compliance platform
+                that serves 25,000+ students across 20+ institutions to security infrastructure protecting millions of patient 
+                records.
+              </p>
+              <p style={{ marginBottom: "16px" }}>
+                So when I set out to build a personal site, I didn't want to build a generic template site but 
+                I wanted something that was fun for me to build and still communicates who I am and how I work. 
+                So try out the chat panel on the right (or bottom right if you're on mobile) and see what it can 
+                do. It's an AI agent that knows my background. Ask it anything about my experience, or tell it 
+                how you want the page to look or how you want the experience to be presented.
+              </p>
+            </div>
 
-            <h3>Summary</h3>
-            <p>
-              Mission-driven software engineer with 6+ years of engineering
-              across full-stack development with a background in Security &amp;
-              DevOps. As a Lead Engineer and Certified Product Owner, I played a
-              key role in launching an education compliance product that serves
-              20+ institutions and 10,000+ students.
-            </p>
+            <hr style={{ border: "none", borderTop: "1px solid #e0e0e0", marginBottom: "32px" }} />
 
-            <hr />
+            <div style={{ marginBottom: "32px" }}>
+              <h2 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "16px" }}>
+                What I Do
+              </h2>
+              <p style={{ marginBottom: "12px" }}>
+                Currently serving as the Engineering Lead for a 6-person engineering team at 
+                HarperRand-CALRegional, working on products like a compliance platform I led 
+                the development and launch of serving 25,000+ students across 20+ institutions. 
+                I've also worked on process automation projects like a RAG-enabled AI support 
+                agent that reduced Tier 1 support volume by 80% and improvements to our 
+                enrollment process that reduced the allowed us to enroll 1000 more students 
+                in a quarter without additional headcount.
+              </p>
+              <p>
+                Before that: security engineering at a $2B+ healthcare company protecting
+                3M+ patient records, DevOps for a platform distributing $100M+ in social
+                benefits, and working at school doing automation work that saved organizations 
+                hundreds of hours of manual work.
+              </p>
+            </div>
 
-            <h3>Experience</h3>
+            <div style={{ marginBottom: "32px" }}>
+              <h2 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "12px" }}>
+                Background
+              </h2>
+              <p>
+                B.S. Computer Science from Taylor University (3.9 GPA) · Google Certified
+                Professional Cloud Developer · Professional Scrum Product Owner
+              </p>
+            </div>
 
-            <p>
-              <strong>Lead Engineer</strong> |{" "}
-              <strong>HarperRand-CALRegional</strong> |{" "}
-              <em>Sept 2024 – Present</em>
-            </p>
-            <ul>
-              <li>
-                Lead full-stack development of Django/GCP applications,
-                including a 0-to-1 product launch for compliance automation
-                serving 25k+ students.
-              </li>
-              <li>
-                Lead business process automation projects including 80%
-                reduction in Tier 1 support volume via RAG-enabled GenAI chat
-                agent and streamlining student enrollment workflows projected to
-                save $250k+ annually.
-              </li>
-            </ul>
-
-            <p>
-              <strong>Software Engineer</strong> |{" "}
-              <strong>HarperRand-CALRegional</strong> |{" "}
-              <em>Jun 2023 – Sept 2024</em>
-            </p>
-            <ul>
-              <li>
-                Managed full-stack development and product lifecycle tasks
-                within a remote team environment focusing on Django and Google
-                Cloud Platform.
-              </li>
-            </ul>
-
-            <p>
-              <strong>IT Solutions Engineer</strong> |{" "}
-              <strong>The Oaks Academy</strong> |{" "}
-              <em>Sept 2021 – Jun 2023</em>
-            </p>
-            <ul>
-              <li>
-                Led business process automation projects with various academic
-                and business stakeholders using Python and Google App Scripts,
-                saving hundreds of hours of manual document generation yearly.
-              </li>
-              <li>
-                Administered accounts, software, and hardware used by 1000+
-                students and 200+ employees.
-              </li>
-            </ul>
-
-            <p>
-              <strong>DevOps Engineer</strong> |{" "}
-              <strong>Moser Consulting</strong> |{" "}
-              <em>Aug 2020 – Sept 2021</em>
-            </p>
-            <ul>
-              <li>
-                Administered a highly available Java/Spring Boot platform
-                deployed in Kubernetes with 20+ microservices, facilitating the
-                secure distribution of $100M+ in social program benefits to
-                500K+ individuals.
-              </li>
-              <li>
-                Elevated observability by implementing new telemetry and
-                monitoring for microservices using Elasticsearch, Logstash, and
-                Kibana, resulting in a reduction of mean time to resolution
-                (MTTR) for critical site reliability issues.
-              </li>
-              <li>
-                Collaborated with cross-functional teams and external
-                stakeholders to manage the lifecycle and deployment of 20+
-                Microservices across 12+ testing and staging environments,
-                minimizing production release risk.
-              </li>
-            </ul>
-
-            <p>
-              <strong>Security Engineer / Consultant</strong> |{" "}
-              <strong>Flatiron Health</strong> |{" "}
-              <em>Feb 2019 – Aug 2022</em>
-            </p>
-            <ul>
-              <li>
-                Developed critical security features for platforms in
-                Python/Flask and C#/.NET for data protection and ensuring data
-                integrity, securing 3+ million patient records and protecting a
-                $2B+ organization with 1000+ employees.
-              </li>
-              <li>
-                Automated provisioning and teardown of non-production
-                environments using Terraform on AWS, resulting in secure
-                repeatable deployments, cost savings, and reducing
-                infrastructure spin-up time from minutes to seconds.
-              </li>
-            </ul>
-
-            <hr />
-
-            <h3>Education</h3>
-            <p>
-              <strong>Taylor University</strong> |{" "}
-              <strong>BS in Computer Science</strong> | <em>Jan 2019</em>
-            </p>
-            <ul>
-              <li>
-                <strong>GPA</strong>: 3.9
-              </li>
-              <li>
-                <strong>Coursework</strong>: Machine Learning, Parallel &amp;
-                Distributed Computing, Multi-tier Web App Development
-              </li>
-            </ul>
+            <div>
+              <h2 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "12px" }}>
+                Links
+              </h2>
+              <p>
+                <a href="mailto:jvastbinder513@gmail.com" style={{ marginRight: "16px", color: "#0066cc" }}>
+                  Email
+                </a>
+                <a href="https://linkedin.com/in/joel-vastbinder/" style={{ marginRight: "16px", color: "#0066cc" }}>
+                  LinkedIn
+                </a>
+                <a href="https://github.com/joelvastbinder" style={{ color: "#0066cc" }}>GitHub</a>
+              </p>
+            </div>
           </div>
         )}
       </div>

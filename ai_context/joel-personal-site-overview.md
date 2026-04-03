@@ -19,7 +19,7 @@
 ## Layout
 
 ### Left panel — Personal Site preview
-Renders the active Ppersonal site view. Starts as **unstyled HTML** — real markup with browser default styling only (no custom CSS on the personal site until a restyle). Updates live when the agent generates new HTML/CSS. The underlying content is always Joel's real experience — only the presentation changes.
+Renders the active Personal site view. Starts as **unstyled HTML** — real markup with browser default styling only (no custom CSS on the personal site until a restyle). Updates live when the agent generates new HTML/CSS. The underlying content is always Joel's real experience — only the presentation changes.
 
 ### Right panel — Chat interface
 Persistent sidebar with message history and a text input. The agent responds in chat before applying any visual changes to the left panel.
