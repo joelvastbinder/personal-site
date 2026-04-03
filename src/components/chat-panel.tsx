@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useState, type FormEvent } from "react"
+import React, { useRef, useEffect, useState, type FormEvent } from "react"
 import { CornerDownLeft, X } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
@@ -43,6 +43,7 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
   const [thinkingElapsed, setThinkingElapsed] = useState(0)
   const [dotCount, setDotCount] = useState(1)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const busy = status === "submitted" || status === "streaming"
 
@@ -108,6 +109,13 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
     }
   }, [messages, onHTMLGenerated])
 
+  const adjustHeight = () => {
+    const el = textareaRef.current
+    if (!el) return
+    el.style.height = "auto"
+    el.style.height = `${el.scrollHeight}px`
+  }
+
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const text = input.trim()
@@ -115,6 +123,9 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
     
     void sendMessage({ text })
     setInput("")
+    if (textareaRef.current) {
+      textareaRef.current.style.height = ""
+    }
   }
 
   // If collapsed, show floating widget
@@ -241,27 +252,39 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
       >
         {/* Prompt line */}
         <form
-          className="flex items-center gap-2 px-3 py-2"
+          className="flex items-end gap-2 px-3 py-2"
           onSubmit={handleFormSubmit}
         >
           <span
-            className="text-xs shrink-0 select-none"
+            className="text-xs shrink-0 select-none pb-0.5"
             style={{ color: "var(--ide-accent)" }}
             aria-hidden="true"
           >
             &gt;
           </span>
-          <input
-            type="text"
+          <textarea
+            ref={textareaRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value)
+              adjustHeight()
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault()
+                handleFormSubmit(e as unknown as React.FormEvent<HTMLFormElement>)
+              }
+            }}
             disabled={busy}
             placeholder={busy ? "Thinking..." : "Ask about Joel's work or request a redesign…"}
             aria-label="Chat input"
-            className={`flex-1 bg-transparent text-xs outline-none ${busy ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`flex-1 bg-transparent text-xs outline-none resize-none ${busy ? "opacity-50 cursor-not-allowed" : ""}`}
             style={{
               color: "var(--ide-text)",
               caretColor: "var(--ide-accent)",
+              minHeight: "2lh",
+              maxHeight: "4lh",
+              overflowY: "auto",
             }}
           />
           <button

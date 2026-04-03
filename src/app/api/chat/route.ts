@@ -42,7 +42,7 @@ const routingTools = {
   },
   generate_html: {
     description:
-      "Generate HTML/CSS to present Joel's site content. Use whenever the user asks to build, create, or redesign a website or page, restyle or retheme the UI, apply a visual aesthetic, or frame the resume as a themed or hypothetical pitch (e.g. for a startup or product). If they mention building a site, making it look a certain way, or similar — use this tool, even if they also ask how Joel would fit a role.",
+      "Generate HTML/CSS to present Joel's content. Use for any creative or generative request — websites, games, quizzes, interactive experiences, themed layouts, visual redesigns, or hypothetical pitches. Use this tool whenever the user wants to CREATE or BUILD anything, even if it doesn't explicitly mention a website.",
     inputSchema: z.object({
       theme_description: z.string().describe("Description of the requested theme or style")
     }),
@@ -69,9 +69,9 @@ async function detectIntent(
           content: [
             "Route each user message by calling exactly one tool.",
             "",
-            "Call generate_html if the user mentions any of: building / making / creating a website, web page, or landing page; restyling, redesigning, retheming, or changing how the site looks; a visual theme, aesthetic, or \"make it look like …\"; HTML, layout, or UI; or presenting Joel's resume as a themed or hypothetical pitch (e.g. for a company or startup). Mixed messages that include both a fit question and \"build a site\" → generate_html.",
+            "Call generate_html for any request that asks to CREATE, BUILD, MAKE, or GENERATE something — this includes websites, pages, games, quizzes, tools, interactive experiences, themed layouts, visual redesigns, or any other creative/generative output. Also use it for visual themes, aesthetics, or hypothetical pitches. When in doubt between the two tools, prefer generate_html.",
             "",
-            "Call qa_response only for straightforward informational questions about Joel (skills, experience, background) with no request to build, restyle, or visually present a site.",
+            "Call qa_response ONLY for straightforward factual questions about Joel — e.g. 'Where did Joel work?', 'What are Joel's skills?', 'Has Joel used Python?' — with no creative, generative, or build request attached.",
           ].join("\n"),
         }, {
           role: "user", 
@@ -162,10 +162,7 @@ export async function POST(req: NextRequest) {
     throw err
   }
 
-  // Select model based on detected intent
-  // Q&A mode: use default (fast, cheap Gemini Flash Lite)
-  // Restyle mode: use Claude Sonnet for better creative design
-  const modelId = mode === "restyle" ? "anthropic/claude-haiku-4.5" : defaultModelId
+  const modelId = "anthropic/claude-haiku-4.5"
 
   const systemPrompt = buildSystemPrompt(mode)
 

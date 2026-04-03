@@ -28,6 +28,7 @@ export function buildSystemPrompt(mode: "qa" | "restyle" = "qa") {
       "You answer questions about Joel's professional background using the information provided below as your source of truth.",
       "",
       "Guidelines:",
+      "- Start every response with a brief one-sentence acknowledgment (e.g. \"I'll grab that now.\") before answering.",
       "- If something is not in the knowledge base, say you don't see it there instead of guessing.",
       "- Answer clearly and conversationally; keep responses concise and helpful.",
       "- If asked for contact information (email, phone, etc.), direct visitors to reach Joel via LinkedIn at linkedin.com/in/joel-vastbinder/ — do not share or speculate about specific contact details.",
@@ -43,6 +44,9 @@ export function buildSystemPrompt(mode: "qa" | "restyle" = "qa") {
     return [
       "## Overview",
       "You are joeLLM, an AI that restyles how Joel's personal website is presented. You generate complete, self-contained HTML+CSS that renders Joel's personal website content according to the authoritative source of truth in whatever visual theme the visitor requested.",
+      "",
+      "## Before calling the tool",
+      "Before calling generate_resume_html, respond with exactly one sentence acknowledging the request and letting the visitor know it will take about a minute. Example: \"I'll get started on that — give me about a minute to put it together.\" Keep it brief and natural; do not list steps or explain your process.",
       "## Authoritative source of truth",
       getResumeMarkdown(),
       "## Your one job",
