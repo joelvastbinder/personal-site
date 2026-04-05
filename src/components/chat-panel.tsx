@@ -183,10 +183,22 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
         <button
           onClick={() => setIsCollapsed(true)}
           aria-label="Close chat"
-          className="flex items-center justify-center w-6 h-6 rounded hover:bg-gray-700/50 transition-colors"
-          style={{ color: "var(--ide-text-muted)" }}
+          className="flex items-center justify-center w-6 h-6 rounded transition-colors"
+          style={{
+            color: "var(--ide-text)",
+            border: "1.5px solid var(--ide-text-muted)",
+            background: "var(--ide-send-bg)",
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--ide-accent)"
+            ;(e.currentTarget as HTMLButtonElement).style.color = "var(--ide-accent)"
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--ide-text-muted)"
+            ;(e.currentTarget as HTMLButtonElement).style.color = "var(--ide-text)"
+          }}
         >
-          <X size={14} />
+          <X size={14} strokeWidth={2.5} />
         </button>
       </div>
 
@@ -261,7 +273,7 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
               joelLM
             </span>
             {isGeneratingHTML
-              ? `Generating redesign${".".repeat(dotCount)} ${thinkingElapsed}s`
+              ? `Generating redesign (should take about a minute)${".".repeat(dotCount)} ${thinkingElapsed}s`
               : `Thinking${".".repeat(dotCount)} ${thinkingElapsed}s`}
           </div>
         )}

@@ -11,7 +11,7 @@ const MIN_CHAT_WIDTH = 300
 const MAX_CHAT_VW = 0.7
 
 export default function Page() {
-  const [theme, setTheme] = useState<Theme>("dark")
+  const [theme, setTheme] = useState<Theme>("solarized")
   const [chatWidth, setChatWidth] = useState(380)
   const [displayedHTML, setDisplayedHTML] = useState<string | null>(null)
   const [isChatCollapsed, setIsChatCollapsed] = useState(false)

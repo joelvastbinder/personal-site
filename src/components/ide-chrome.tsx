@@ -37,7 +37,7 @@ export function TopBar({ theme, onThemeChange }: TopBarProps) {
         role="group"
         aria-label="Theme switcher"
       >
-        {(["dark", "solarized"] as Theme[]).map((t) => (
+        {(["solarized", "dark"] as Theme[]).map((t) => (
           <button
             key={t}
             onClick={() => onThemeChange(t)}
@@ -47,7 +47,7 @@ export function TopBar({ theme, onThemeChange }: TopBarProps) {
               background: theme === t ? "var(--ide-accent)" : "transparent",
               color: theme === t ? "#ffffff" : "var(--ide-text-muted)",
               borderRight:
-                t === "dark" ? "1px solid var(--ide-border)" : "none",
+                t === "solarized" ? "1px solid var(--ide-border)" : "none",
               transition: "background 0.15s, color 0.15s",
             }}
           >
