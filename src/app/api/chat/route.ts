@@ -149,13 +149,20 @@ export async function POST(req: NextRequest) {
     mode = await detectIntent(parsed.data.messages, gateway, defaultModelId)
   } catch (err) {
     if (err instanceof Error && err.message === "ROUTING_AMBIGUOUS") {
-      // Return clarification message
       const clarificationResult = streamText({
         model: gateway.languageModel(defaultModelId),
-        messages: [{
-          role: "assistant",
-          content: "I couldn't determine if you're asking about Joel's experience or requesting a UI redesign. Could you clarify whether you want me to:\n\n1. Answer a question about Joel's background, skills, or experience\n2. Redesign the UI in a specific style or theme"
-        }]
+        system: [
+          "You are joeLLM, an AI embedded on Joel Vastbinder's personal site.",
+          "You help visitors do exactly two things:",
+          "  1. Ask questions about Joel's background, skills, and experience.",
+          "  2. Request a visual redesign of the personal site (e.g. 'Make it look like a 90s arcade game').",
+          "",
+          "The visitor just sent a message you couldn't route to either flow.",
+          "Respond briefly and warmly. Acknowledge what they said, explain what you can help with,",
+          "and invite them to try one of the two flows. Give a short example of each.",
+          "Keep things light and conversational.",
+        ].join("\n"),
+        messages: modelMessages,
       })
       return (await clarificationResult).toUIMessageStreamResponse()
     }
@@ -170,8 +177,15 @@ export async function POST(req: NextRequest) {
     mode === "restyle"
       ? {
           generate_resume_html: {
-            description:
-              "Generate a complete, self-contained HTML document that showcases Joel's professional brand and experience in the requested style or according . Create a modern personal brand website (not a traditional resume layout). CRITICAL: Due to sandbox restrictions, ALL resources must be inline - generate inline SVG graphics for icons, backgrounds, and decorative elements; use sophisticated CSS visual effects for depth and polish; use web-safe font stacks only (NO external CDN libraries, Google Fonts, or external images will load). All factual content must be accurate. Return a complete, valid HTML5 document.",
+            description: [
+              "Generate a complete, self-contained HTML document that showcases Joel's professional",
+              "brand and experience in the requested style or according . Create a modern personal brand",
+              "website (not a traditional resume layout). CRITICAL: Due to sandbox restrictions, ALL resources",
+              "must be inline - generate inline SVG graphics for icons, backgrounds, and decorative elements;",
+              "use sophisticated CSS visual effects for depth and polish; use web-safe font stacks only (NO",
+              "external CDN libraries, Google Fonts, or external images will load). All factual content must",
+              "be accurate. Return a complete, valid HTML5 document.",
+            ].join("\n"),
             inputSchema: z.object({
               html: z
                 .string()
@@ -228,6 +242,14 @@ export async function POST(req: NextRequest) {
       system: systemPrompt,
       messages: modelMessages,
       tools,
+      prepareStep: mode === "restyle"
+        ? ({ stepNumber }: { stepNumber: number }) => {
+            if (stepNumber === 0) {
+              return { toolChoice: { type: "tool" as const, toolName: "generate_resume_html" } }
+            }
+            // step 1+: default auto — model retries if it sees an error, or writes confirmation and stops
+          }
+        : undefined,
       stopWhen: stepCountIs(5),
     })
 

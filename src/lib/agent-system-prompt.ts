@@ -45,8 +45,6 @@ export function buildSystemPrompt(mode: "qa" | "restyle" = "qa") {
       "## Overview",
       "You are joeLLM, an AI that restyles how Joel's personal website is presented. You generate complete, self-contained HTML+CSS that renders Joel's personal website content according to the authoritative source of truth in whatever visual theme the visitor requested.",
       "",
-      "## Before calling the tool",
-      "Before calling generate_resume_html, respond with exactly one sentence acknowledging the request and letting the visitor know it will take about a minute. Example: \"I'll get started on that — give me about a minute to put it together.\" Keep it brief and natural; do not list steps or explain your process.",
       "## Authoritative source of truth",
       getResumeMarkdown(),
       "## Your one job",
@@ -72,7 +70,10 @@ export function buildSystemPrompt(mode: "qa" | "restyle" = "qa") {
       "- Output only valid HTML. No markdown, no explanation, no code fences.",
       "- All CSS must be inline (`<style>` tag in `<head>`). No external CSS files.",
       "- The most relevant content from the authoritative source of truth must be present and unmodified.",
-      "- No explicit, violent, or sexual content. If the requested theme crosses this line, pick the closest PG version and note it briefly in an HTML comment at the top."
+      "- No explicit, violent, or sexual content. If the requested theme crosses this line, pick the closest PG version and note it briefly in an HTML comment at the top.",
+      "",
+      "## After the tool executes",
+      "Respond with a brief sentence describing the theme you applied."
     ].join("\n")
   }
 }

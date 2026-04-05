@@ -5,6 +5,7 @@ import { CornerDownLeft, X } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import type { UIMessage } from "ai"
+import ReactMarkdown from "react-markdown"
 import { FloatingChatWidget } from "./floating-chat-widget"
 
 function messageText(message: UIMessage): string {
@@ -32,6 +33,28 @@ const WELCOME_MESSAGE = {
   ].join("\n"),
 }
 
+function MarkdownMessage({ children }: { children: string }) {
+  return (
+    <ReactMarkdown
+      components={{
+        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+        strong: ({ children }) => <strong className="font-semibold" style={{ color: "var(--ide-text)" }}>{children}</strong>,
+        em: ({ children }) => <em className="italic">{children}</em>,
+        h1: ({ children }) => <h1 className="font-bold text-sm mb-1 mt-2 first:mt-0" style={{ color: "var(--ide-text)" }}>{children}</h1>,
+        h2: ({ children }) => <h2 className="font-semibold text-xs mb-1 mt-2 first:mt-0" style={{ color: "var(--ide-text)" }}>{children}</h2>,
+        h3: ({ children }) => <h3 className="font-semibold text-xs mb-1 mt-2 first:mt-0" style={{ color: "var(--ide-text)" }}>{children}</h3>,
+        ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-0.5">{children}</ul>,
+        ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
+        li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+        code: ({ children }) => <code className="px-1 rounded text-[11px]" style={{ background: "var(--ide-border)", color: "var(--ide-accent)" }}>{children}</code>,
+        a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="underline" style={{ color: "var(--ide-accent)" }}>{children}</a>,
+      }}
+    >
+      {children}
+    </ReactMarkdown>
+  )
+}
+
 export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { messages, sendMessage, status, error } = useChat({
@@ -46,6 +69,10 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const busy = status === "submitted" || status === "streaming"
+  const lastMsg = messages[messages.length - 1]
+  const isGeneratingHTML = busy &&
+    lastMsg?.role === "assistant" &&
+    lastMsg.parts.some(p => p.type === "tool-generate_resume_html")
 
   // Initialize collapse state from localStorage
   useEffect(() => {
@@ -168,7 +195,7 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
         {/* Welcome message (not sent to AI) */}
         <div>
           <div
-            className="rounded text-xs leading-relaxed whitespace-pre-line px-3 py-2"
+            className="rounded text-xs leading-relaxed px-3 py-2"
             style={{
               background: "var(--ide-agent-bg)",
               color: "var(--ide-text)",
@@ -180,7 +207,7 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
             >
               joelLM
             </span>
-            {WELCOME_MESSAGE.content}
+            <MarkdownMessage>{WELCOME_MESSAGE.content}</MarkdownMessage>
           </div>
         </div>
         
@@ -199,21 +226,23 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
                 {messageText(msg)}
               </p>
             ) : (
-              <div
-                className="rounded text-xs leading-relaxed whitespace-pre-line px-3 py-2"
-                style={{
-                  background: "var(--ide-agent-bg)",
-                  color: "var(--ide-text)",
-                }}
-              >
-                <span
-                  className="block text-xs mb-1 select-none"
-                  style={{ color: "var(--ide-accent)" }}
+              messageText(msg) ? (
+                <div
+                  className="rounded text-xs leading-relaxed px-3 py-2"
+                  style={{
+                    background: "var(--ide-agent-bg)",
+                    color: "var(--ide-text)",
+                  }}
                 >
-                  joelLM
-                </span>
-                {messageText(msg)}
-              </div>
+                  <span
+                    className="block text-xs mb-1 select-none"
+                    style={{ color: "var(--ide-accent)" }}
+                  >
+                    joelLM
+                  </span>
+                  <MarkdownMessage>{messageText(msg)}</MarkdownMessage>
+                </div>
+              ) : null
             )}
           </div>
         ))}
@@ -231,7 +260,9 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
             >
               joelLM
             </span>
-            Thinking{".".repeat(dotCount)} {thinkingElapsed}s
+            {isGeneratingHTML
+              ? `Generating redesign${".".repeat(dotCount)} ${thinkingElapsed}s`
+              : `Thinking${".".repeat(dotCount)} ${thinkingElapsed}s`}
           </div>
         )}
         {error && (
