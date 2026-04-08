@@ -170,6 +170,7 @@ export async function POST(req: NextRequest) {
   }
 
   const modelId = "anthropic/claude-haiku-4.5"
+  const userMessage = messageText(parsed.data.messages[parsed.data.messages.length - 1])
 
   const systemPrompt = buildSystemPrompt(mode)
 
@@ -237,11 +238,20 @@ export async function POST(req: NextRequest) {
       : undefined
 
   try {
+    const startTime = Date.now()
     const result = streamText({
       model: gateway.languageModel(modelId),
       system: systemPrompt,
       messages: modelMessages,
       tools,
+      onFinish: () => {
+        console.log('[chat]', JSON.stringify({
+          ts: new Date().toISOString(),
+          message: userMessage,
+          intent: mode,
+          durationMs: Date.now() - startTime,
+        }))
+      },
       prepareStep: mode === "restyle"
         ? ({ stepNumber }: { stepNumber: number }) => {
             if (stepNumber === 0) {
