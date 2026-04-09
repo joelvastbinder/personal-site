@@ -28,6 +28,15 @@ function messageText(message: UIMessage): string {
     .join("")
 }
 
+const CONTEXT_WINDOW = 15
+
+async function prepareMessages(
+  messages: UIMessage[],
+): Promise<Awaited<ReturnType<typeof convertToModelMessages>>> {
+  const windowed = messages.length > CONTEXT_WINDOW ? messages.slice(-CONTEXT_WINDOW) : messages
+  return convertToModelMessages(windowed)
+}
+
 // Routing tools for intent detection
 const routingTools = {
   qa_response: {
@@ -141,7 +150,7 @@ export async function POST(req: NextRequest) {
   }
 
   const gateway = createGateway({ apiKey })
-  const modelMessages = await convertToModelMessages(parsed.data.messages)
+  const modelMessages = await prepareMessages(parsed.data.messages)
 
   // Detect intent using routing layer
   let mode: "qa" | "restyle"
