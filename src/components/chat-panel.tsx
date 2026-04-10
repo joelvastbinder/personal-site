@@ -7,6 +7,11 @@ import { DefaultChatTransport } from "ai"
 import type { UIMessage } from "ai"
 import ReactMarkdown from "react-markdown"
 import { FloatingChatWidget } from "./floating-chat-widget"
+import { THINKING_PHRASES } from "@/lib/thinking-phrases"
+
+function shufflePhraseList(): string[] {
+  return [...THINKING_PHRASES].sort(() => Math.random() - 0.5)
+}
 
 function messageText(message: UIMessage): string {
   return message.parts
@@ -23,15 +28,9 @@ const WELCOME_MESSAGE = {
   id: "welcome",
   role: "assistant" as const,
   content: [
-    "Hi! I'm here to help you explore Joel's work and redesign this site in real-time.",
+    "Ask me about Joel's experience, or give me a theme and I'll redesign the page. Be as creative as you like.",
     "",
-    "You can:",
-    "- Ask questions about Joel's projects, skills, and experience",
-    "- Request a UI redesign based on a theme or a different way to present Joel's experience. like:",
-    "    - \"Create a trivia game to teach me more about Joel's experience\"",
-    "    - \"Style it like an 80s terminal.\"",
-    "",
-    "Get as creative as you want! I'm here to help."
+    'Try: *"What has he built?"* or *"Style this like a retro video game."*',
   ].join("\n"),
 }
 
@@ -67,6 +66,7 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
   const [input, setInput] = useState("")
   const [thinkingElapsed, setThinkingElapsed] = useState(0)
   const [dotCount, setDotCount] = useState(1)
+  const [shuffledPhrases, setShuffledPhrases] = useState(shufflePhraseList)
   const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -149,7 +149,8 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
     e.preventDefault()
     const text = input.trim()
     if (!text || busy) return
-    
+
+    setShuffledPhrases(shufflePhraseList())
     void sendMessage({ text })
     setInput("")
     if (textareaRef.current) {
@@ -274,9 +275,9 @@ export function ChatPanel({ onHTMLGenerated }: ChatPanelProps) {
             >
               joelLM
             </span>
-            {isGeneratingHTML
+            {isGeneratingHTML && thinkingElapsed < 10
               ? `Generating redesign (should take about a minute)${".".repeat(dotCount)} ${thinkingElapsed}s`
-              : `Thinking${".".repeat(dotCount)} ${thinkingElapsed}s`}
+              : `${shuffledPhrases[Math.floor(thinkingElapsed / 10) % shuffledPhrases.length]}${".".repeat(dotCount)} ${thinkingElapsed}s`}
           </div>
         )}
         {error && (

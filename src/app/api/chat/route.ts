@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server"
+import { NextRequest, after } from "next/server"
 import { z } from "zod"
 import { streamText, convertToModelMessages, stepCountIs, type UIMessage } from "ai"
 import { createGateway } from "@ai-sdk/gateway"
@@ -254,12 +254,14 @@ export async function POST(req: NextRequest) {
       messages: modelMessages,
       tools,
       onFinish: () => {
-        console.log('[chat]', JSON.stringify({
-          ts: new Date().toISOString(),
-          message: userMessage,
-          intent: mode,
-          durationMs: Date.now() - startTime,
-        }))
+        after(() => {
+          console.log('[chat]', JSON.stringify({
+            ts: new Date().toISOString(),
+            message: userMessage,
+            intent: mode,
+            durationMs: Date.now() - startTime,
+          }))
+        })
       },
       prepareStep: mode === "restyle"
         ? ({ stepNumber }: { stepNumber: number }) => {

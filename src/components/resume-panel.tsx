@@ -62,27 +62,32 @@ export function ResumePanel({ displayedHTML }: ResumePanelProps) {
               Joel Vastbinder
             </h1>
             <p style={{ color: "#666", marginBottom: "40px" }}>
-              Lead Engineer · Indianapolis
+              Software Engineer · Indianapolis, IN
             </p>
 
             <div style={{ marginBottom: "48px", fontSize: "16px", lineHeight: "1.7" }}>
+              <h2 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "12px" }}>Welcome!</h2>
+              <p style={{ marginBottom: "16px" }}>
+                I intentionally left this page unstyled. Use the chat to ask joelLM questions about my work, or tell it
+                how you want the page to look and it'll redesign it for you in real time.
+              </p>
+              <p style={{ marginBottom: 0 }}>
+                On desktop the chat is open on the right. On mobile, tap the bubble in the bottom-right corner.
+              </p>
+            </div>
+
+            <div style={{ marginBottom: "48px", fontSize: "16px", lineHeight: "1.7" }}>
+              <h2 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "12px" }}>About Me</h2>
               <p style={{ marginBottom: "16px" }}>
               I believe good software gets out of the way. A quality tool should feel almost familiar to new 
               users because it solves a real, human problem. It should amplify the impact the user is already 
               making without overcomplicating the process. 
               </p>
-              <p style={{ marginBottom: "16px" }}>
+              <p style={{ marginBottom: 0 }}>
               I get excited solving problems that make a tangible difference in people's lives, and that's 
               been the throughline across everything I've built, from a compliance platform that serves 
               thousands of students across dozens of institutions to security infrastructure protecting 
               millions of patient records.
-              </p>
-              <p style={{ marginBottom: "16px" }}>
-              That’s why when I set out to build a personal site, I didn't want to build a generic template site; 
-              I wanted something that was fun for me to build and still communicated who I am. So try out the chat 
-              panel on the right (or bottom right if you're on mobile) and see what it can do. It's an AI agent that 
-              knows my background. Ask it anything about my experience, or tell it how you want the page to look, or 
-              how you want the experience to be presented.
               </p>
             </div>
 
@@ -93,7 +98,7 @@ export function ResumePanel({ displayedHTML }: ResumePanelProps) {
                 What I Do
               </h2>
               <p style={{ marginBottom: "12px" }}>
-                Currently serving as the Tech Lead for a 6-person engineering team at 
+                Currently serving as the Tech Lead for a 5-person engineering team at 
                 HarperRand-CALRegional, working on products like a compliance platform I led 
                 the development and launch of serving 25,000+ students across 20+ institutions. 
                 I've also worked on process automation projects like a RAG-enabled AI support 

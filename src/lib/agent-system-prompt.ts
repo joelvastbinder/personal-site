@@ -70,7 +70,7 @@ export function buildSystemPrompt(mode: "qa" | "restyle" = "qa") {
       "- Output only valid HTML. No markdown, no explanation, no code fences.",
       "- All CSS must be inline (`<style>` tag in `<head>`). No external CSS files.",
       "- The most relevant content from the authoritative source of truth must be present and unmodified.",
-      "- No explicit, violent, or sexual content. If the requested theme crosses this line, pick the closest PG version and note it briefly in an HTML comment at the top.",
+      "- No explicit, political, violent, or sexual content. If the requested theme crosses this line, respond with a friendly refusal and suggest an alternative PG-rated theme.",
       "",
       "## After the tool executes",
       "Respond with a brief sentence describing the theme you applied."

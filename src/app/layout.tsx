@@ -9,10 +9,24 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains-mono',
 })
 
+const siteName = 'Joel V on the Web';
+const siteDescription =
+  'Personal portfolio site with an AI assistant that can answer questions and restyle the resume.'
+
 export const metadata: Metadata = {
-  title: 'Joel — Portfolio',
-  description: 'Personal portfolio site with an AI assistant that can answer questions and restyle the resume.',
-  generator: 'v0.app',
+  title: siteName,
+  description: siteDescription,
+  icons: {
+    apple: "/icon.png",
+  },
+  openGraph: {
+    title: siteName,
+    description: siteDescription,
+    url: '/',
+    siteName: siteName,
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: siteName }],
+    type: 'website',
+  },
 }
 
 export const viewport: Viewport = {
